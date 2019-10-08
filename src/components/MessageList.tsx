@@ -1,9 +1,11 @@
-import React, { memo, useState, useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { getMessage } from "../api/Messages";
+import { useMessageContext } from "../hooks/useMessageContext";
+import moment from "moment";
 
-export const MessageList = memo(() => {
-	const [messages, setMessages] = useState<string[]>([]);
+export const MessageList = () => {
+	const { state, setMessages } = useMessageContext();
 
 	useEffect(() => {
 		getMessage((err, message) => {
@@ -11,25 +13,25 @@ export const MessageList = memo(() => {
 				return console.error(err);
 			}
 
-			console.log(message, "123");
-			
-
-			setMessages([message, ...messages]);
+			setMessages(message);
 		});
-	}, [messages]);
+	}, []);
 
 	return (
 		<Container>
-			{messages.map((message: any, index) => {
+			{state.messages.map((message: any, index) => {
 				return (
 					<div key={index} className="message-item">
-						<p>{message.text}</p>
+						<p>
+							<span>{message.text}</span>
+							<span className="createdAt">{moment(message.createdAt).format("hh:mm")}</span>
+						</p>
 					</div>
 				);
 			})}
 		</Container>
 	);
-});
+};
 
 const Container = styled.div`
 	background: #e5ddd5;
@@ -52,6 +54,17 @@ const Container = styled.div`
 			background: #fff;
 			border-radius: 7px;
 			float: left;
+
+			span:first-child {
+				margin-right: 10px;
+				position: relative;
+				white-space: pre-wrap;
+				word-wrap: break-word;
+			}
+
+			.createdAt {
+				font-size: 10px;
+			}
 		}
 	}
 `;
